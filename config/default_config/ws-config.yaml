@@ -12,6 +12,14 @@ wsPort: 54545
 # 是否忽略云崽配置文件的仅艾特
 ignoreOnlyReplyAt: false
 
+# gsuid_core上报前缀（按bot账号单独配置）
+# 键为bot账号(self_id)，值为要拼接在消息最前面的前缀
+# 示例：
+# gsuidBotPrefix:
+#   "123456": "cat"
+#   "234567": "dog"
+gsuidBotPrefix: {}
+
 # 是否单独添加仅艾特或前缀
 # 可以为每个连接单独添加
 onlyReplyAt:
