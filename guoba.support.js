@@ -94,8 +94,8 @@ export function supportGuoba() {
         },
         {
           field: 'ws.gsuidBotPrefixList',
-          label: '早柚前缀',
-          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号设置并在转发时自动添加前缀前缀。',
+          label: '早柚转发前缀',
+          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号在转发时自动添加前缀（设置后自动移除/前缀）。',
           component: 'GSubForm',
           componentProps: {
             multiple: true,

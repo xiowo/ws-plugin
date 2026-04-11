@@ -158,7 +158,9 @@ function addGSUidBotPrefix (e, rawEvent) {
 
   const textIndex = e.message.findIndex(item => item?.type === 'text')
   if (textIndex >= 0) {
-    e.message[textIndex].text = `${prefix}${e.message[textIndex].text || ''}`
+    const rawText = String(e.message[textIndex].text || '')
+    const trimmedText = rawText.replace(/^\s*\/*\s*/, '')
+    e.message[textIndex].text = `${prefix}${trimmedText}`
   } else {
     e.message.unshift({ type: 'text', text: prefix })
   }
