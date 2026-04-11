@@ -93,6 +93,29 @@ export function supportGuoba() {
           }
         },
         {
+          field: 'ws.gsuidBotPrefixList',
+          label: '早柚前缀',
+          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号设置并在转发时自动添加前缀前缀。',
+          component: 'GSubForm',
+          componentProps: {
+            multiple: true,
+            schemas: [
+              {
+                field: 'self_id',
+                label: 'BOT账号',
+                component: 'Input',
+                required: true
+              },
+              {
+                field: 'prefix',
+                label: '前缀',
+                component: 'Input',
+                required: true
+              }
+            ]
+          }
+        },
+        {
           component: 'Divider',
           label: '通知设置'
         },
@@ -300,8 +323,14 @@ export function supportGuoba() {
       ],
       // 获取配置数据方法（用于前端填充显示数据）
       getConfigData() {
+        const ws = Config.getDefOrConfig('ws-config')
+        const prefixMap = ws.gsuidBotPrefix || {}
+        ws.gsuidBotPrefixList = Object.keys(prefixMap).map(self_id => ({
+          self_id,
+          prefix: prefixMap[self_id]
+        }))
         return {
-          ws: Config.getDefOrConfig('ws-config'),
+          ws,
           msg: Config.getDefOrConfig('msg-config'),
           notice: Config.getDefOrConfig('notice-config'),
           request: Config.getDefOrConfig('request-config')
@@ -312,6 +341,20 @@ export function supportGuoba() {
         let config = Config.getCfg()
         for (const key in data) {
           let split = key.split('.')
+          if (key === 'ws.gsuidBotPrefixList') {
+            const list = Array.isArray(data[key]) ? data[key] : []
+            const map = {}
+            for (const item of list) {
+              const self_id = String(item?.self_id || '').trim()
+              const prefix = String(item?.prefix || '')
+              if (!self_id || !prefix) continue
+              map[self_id] = prefix
+            }
+            if (!lodash.isEqual(config.gsuidBotPrefix || {}, map)) {
+              Config.modify('ws-config', 'gsuidBotPrefix', map)
+            }
+            continue
+          }
           if (lodash.isEqual(config[split[1]], data[key])) continue
           Config.modify(split[0] + '-config', split[1], data[key])
         }

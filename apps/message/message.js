@@ -133,6 +133,7 @@ Bot.on('message', async e => {
               Discord: 'discord'
             }[e.bot?.adapter?.id] || 'onebot'
           } else if (i.uin != e.self_id) continue
+          addGSUidBotPrefix(tmpMsg, e)
           reportMsg = await makeGSUidReportMsg(tmpMsg, botid)
           break
         }
@@ -143,6 +144,25 @@ Bot.on('message', async e => {
     }
   }
 })
+
+function addGSUidBotPrefix (e, rawEvent) {
+  const prefixCfg = Config.gsuidBotPrefix
+  if (!prefixCfg || typeof prefixCfg !== 'object') return
+
+  const selfId = String(rawEvent?.self_id || e?.self_id || '')
+  if (!selfId) return
+
+  const prefix = prefixCfg[selfId]
+  if (typeof prefix !== 'string' || !prefix) return
+  if (!Array.isArray(e.message)) return
+
+  const textIndex = e.message.findIndex(item => item?.type === 'text')
+  if (textIndex >= 0) {
+    e.message[textIndex].text = `${prefix}${e.message[textIndex].text || ''}`
+  } else {
+    e.message.unshift({ type: 'text', text: prefix })
+  }
+}
 
 function reply (e) {
   if (!Version.isTrss) {

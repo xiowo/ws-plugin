@@ -98,6 +98,11 @@ class Config {
     return this.getDefOrConfig('ws-config').onlyReplyAt
   }
 
+  /** gsuid_core上报前缀配置（按bot账号区分） */
+  get gsuidBotPrefix () {
+    return this.getDefOrConfig('ws-config').gsuidBotPrefix || {}
+  }
+
   /** 连接列表 */
   get servers () {
     return this.getDefOrConfig('ws-config').servers

@@ -220,8 +220,24 @@ export default class Client {
   }
 
   createGSUidWs () {
+    let wsAddress = this.address
+    if (this.accessToken) {
+      try {
+        const urlObj = new URL(wsAddress)
+        if (!urlObj.searchParams.has('token')) {
+          urlObj.searchParams.set('token', this.accessToken)
+        }
+        wsAddress = urlObj.toString()
+      } catch (error) {
+        const hasQuery = wsAddress.includes('?')
+        const hasToken = /([?&])token=/.test(wsAddress)
+        if (!hasToken) {
+          wsAddress += `${hasQuery ? '&' : '?'}token=${encodeURIComponent(this.accessToken)}`
+        }
+      }
+    }
     try {
-      this.ws = new WebSocket(this.address)
+      this.ws = new WebSocket(wsAddress)
     } catch (error) {
       logger.error(`[ws-plugin] 出错了,可能是ws地址填错了~\nws名字: ${this.name}\n地址: ${this.address}\n类型: 3`)
       return
