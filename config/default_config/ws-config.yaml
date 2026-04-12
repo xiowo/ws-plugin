@@ -14,11 +14,22 @@ ignoreOnlyReplyAt: false
 
 # gsuid_core上报前缀（按bot账号单独配置）
 # 键为bot账号(self_id)，值为要拼接在消息最前面的前缀
+#   - prefix: 前缀内容
+#   - skipIfHasPrefix: 有前缀不插入（默认 true）
+#     当命令去掉开头空白和/后，首字符是大小写字母或数字时，视为“已有前缀”
 # 示例：
 # gsuidBotPrefix:
-#   "123456": "cat"
-#   "234567": "dog"
+#   "123456":
+#     prefix: "cat"
+#     skipIfHasPrefix: true
+#   "234567":
+#     prefix: "dog"
+#     skipIfHasPrefix: false
 gsuidBotPrefix: {}
+
+# 命中以下命令时不自动添加自定义前缀（支持自定义）
+# 判断方式：去掉开头空白和/后，命令以配置项任一内容开头即命中
+gsuidNoPrefixCommands: []
 
 # 是否单独添加仅艾特或前缀
 # 可以为每个连接单独添加

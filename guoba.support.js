@@ -111,7 +111,29 @@ export function supportGuoba() {
                 label: '前缀',
                 component: 'Input',
                 required: true
+              },
+              {
+                field: 'skipIfHasPrefix',
+                label: '有前缀不插入',
+                bottomHelpMessage: '开启后，若命令开头是大小写字母或数字，则不再插入自定义前缀',
+                component: 'Switch',
+                componentProps: {
+                  defaultValue: true
+                }
               }
+            ]
+          }
+        },
+        {
+          field: 'ws.gsuidNoPrefixCommands',
+          label: '不加前缀命令',
+          bottomHelpMessage: '命中这些命令时不自动添加自定义前缀',
+          component: 'Select',
+          componentProps: {
+            allowClear: true,
+            mode: 'tags',
+            options: [
+              { value: '扫码登陆' }
             ]
           }
         },
@@ -325,10 +347,14 @@ export function supportGuoba() {
       getConfigData() {
         const ws = Config.getDefOrConfig('ws-config')
         const prefixMap = ws.gsuidBotPrefix || {}
-        ws.gsuidBotPrefixList = Object.keys(prefixMap).map(self_id => ({
-          self_id,
-          prefix: prefixMap[self_id]
-        }))
+        ws.gsuidBotPrefixList = Object.keys(prefixMap).map(self_id => {
+          const item = prefixMap[self_id]
+          return {
+            self_id,
+            prefix: String(item?.prefix || ''),
+            skipIfHasPrefix: typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true
+          }
+        })
         return {
           ws,
           msg: Config.getDefOrConfig('msg-config'),
@@ -347,8 +373,12 @@ export function supportGuoba() {
             for (const item of list) {
               const self_id = String(item?.self_id || '').trim()
               const prefix = String(item?.prefix || '')
+              const skipIfHasPrefix = typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true
               if (!self_id || !prefix) continue
-              map[self_id] = prefix
+              map[self_id] = {
+                prefix,
+                skipIfHasPrefix
+              }
             }
             if (!lodash.isEqual(config.gsuidBotPrefix || {}, map)) {
               Config.modify('ws-config', 'gsuidBotPrefix', map)
