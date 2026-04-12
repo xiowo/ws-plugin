@@ -93,51 +93,6 @@ export function supportGuoba() {
           }
         },
         {
-          field: 'ws.gsuidBotPrefixList',
-          label: '早柚转发前缀',
-          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号在转发时自动添加前缀（设置后自动移除/前缀）。',
-          component: 'GSubForm',
-          componentProps: {
-            multiple: true,
-            schemas: [
-              {
-                field: 'self_id',
-                label: 'BOT账号',
-                component: 'Input',
-                required: true
-              },
-              {
-                field: 'prefix',
-                label: '前缀',
-                component: 'Input',
-                required: true
-              },
-              {
-                field: 'skipIfHasPrefix',
-                label: '有前缀不插入',
-                bottomHelpMessage: '开启后，若命令开头是大小写字母或数字，则不再插入自定义前缀',
-                component: 'Switch',
-                componentProps: {
-                  defaultValue: true
-                }
-              }
-            ]
-          }
-        },
-        {
-          field: 'ws.gsuidNoPrefixCommands',
-          label: '不加前缀命令',
-          bottomHelpMessage: '命中这些命令时不自动添加自定义前缀',
-          component: 'Select',
-          componentProps: {
-            allowClear: true,
-            mode: 'tags',
-            options: [
-              { value: '扫码登陆' }
-            ]
-          }
-        },
-        {
           component: 'Divider',
           label: '通知设置'
         },
@@ -314,6 +269,55 @@ export function supportGuoba() {
           label: '群聊申请',
           bottomHelpMessage: '群聊申请是否上报 (申请加入群聊)',
           component: 'Switch',
+        },
+        {
+          component: 'Divider',
+          label: '早柚转发高级设置'
+        },
+        {
+          field: 'ws.gsuidBotPrefixList',
+          label: '早柚转发前缀',
+          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号在转发时自动添加前缀（设置后自动移除/前缀）。',
+          component: 'GSubForm',
+          componentProps: {
+            multiple: true,
+            schemas: [
+              {
+                field: 'self_id',
+                label: 'BOT账号',
+                component: 'Input',
+                required: true
+              },
+              {
+                field: 'prefix',
+                label: '前缀',
+                component: 'Input',
+                required: true
+              },
+              {
+                field: 'skipIfHasPrefix',
+                label: '有前缀不插入',
+                bottomHelpMessage: '开启后，若命令开头是大小写字母或数字，则不再插入自定义前缀',
+                component: 'Switch',
+                componentProps: {
+                  defaultValue: true
+                }
+              }
+            ]
+          }
+        },
+        {
+          field: 'ws.gsuidNoPrefixCommands',
+          label: '不加前缀命令',
+          bottomHelpMessage: '命中这些命令时不自动添加自定义前缀',
+          component: 'Select',
+          componentProps: {
+            allowClear: true,
+            mode: 'tags',
+            options: [
+              { value: '扫码登陆' }
+            ]
+          }
         },
         {
           component: 'Divider',
