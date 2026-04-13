@@ -123,16 +123,25 @@ Bot.on('message', async e => {
           reportMsg = await makeOneBotReportMsg(tmpMsg)
           break
         case 3: {
+          const adapterId = e.bot?.adapter?.id
+          const botIdMap = {
+            QQBot: 'qqgroup',
+            QQGuild: 'qqguild',
+            KOOK: 'kook',
+            Telegram: 'telegram',
+            Discord: 'discord'
+          }
+          const mappedBotId = botIdMap[adapterId]
           let botid = i.adapter?.gsBotId
+
           if (i.uin === 'all') {
-            botid = {
-              QQBot: 'qqgroup',
-              QQGuild: 'qqguild',
-              KOOK: 'kook',
-              Telegram: 'telegram',
-              Discord: 'discord'
-            }[e.bot?.adapter?.id] || 'onebot'
-          } else if (i.uin != e.self_id) continue
+            botid = mappedBotId || 'onebot'
+          } else if (i.uin != e.self_id) {
+            continue
+          } else if (!botid) {
+            botid = mappedBotId || 'onebot'
+          }
+
           addGSUidBotPrefix(tmpMsg, e)
           reportMsg = await makeGSUidReportMsg(tmpMsg, botid)
           break

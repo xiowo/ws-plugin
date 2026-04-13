@@ -73,37 +73,36 @@ async function createWebSocket (data) {
     return
   }
   const client = new Client(data)
+  const getQQBotAdapter = (self_id) => ({
+    name: 'QQBot',
+    user_like: [
+      self_id + '%',
+      'qg_%'
+    ],
+    group_like: [
+      self_id + '%',
+      'qg_%'
+    ],
+    gsBotId: 'qqgroup'
+  })
+  const isQQBotLikeId = (self_id) => {
+    if (!self_id) return false
+    return (/^(2854|3889|4019)/.test(self_id) && self_id.length === 10) || (!Version.isTrss && self_id.startsWith('1020') && self_id.length === 9)
+  }
+
+  const botAdapterId = Bot?.[client.uin]?.adapter?.id || Bot?.[client.self_id]?.adapter?.id
+
   if (typeof client.self_id === 'string') {
     client.self_id = await getUser_id({ user_id: client.self_id })
     client.adapter = adapterName[client.uin?.substring?.(0, 3)]
+    const self_id = String(client.self_id)
+    if (!client.adapter && (botAdapterId === 'QQBot' || isQQBotLikeId(self_id))) {
+      client.adapter = getQQBotAdapter(self_id)
+    }
   } else {
     const self_id = String(client.self_id)
-    if (/^(2854|3889)/.test(self_id) && self_id.length === 10) {
-      client.adapter = {
-        name: 'QQBot',
-        user_like: [
-          self_id + '%',
-          'qg_%'
-        ],
-        group_like: [
-          self_id + '%',
-          'qg_%'
-        ],
-        gsBotId: 'qqgroup'
-      }
-    } else if (!Version.isTrss && self_id.startsWith('1020') && self_id.length === 9) {
-      client.adapter = {
-        name: 'QQBot',
-        user_like: [
-          self_id + '%',
-          'qg_%'
-        ],
-        group_like: [
-          self_id + '%',
-          'qg_%'
-        ],
-        gsBotId: 'qqgroup'
-      }
+    if (botAdapterId === 'QQBot' || isQQBotLikeId(self_id)) {
+      client.adapter = getQQBotAdapter(self_id)
     }
   }
   setAllSocketList(client)
