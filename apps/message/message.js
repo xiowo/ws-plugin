@@ -173,7 +173,7 @@ function addGSUidBotPrefix (e, rawEvent) {
   const textIndex = e.message.findIndex(item => item?.type === 'text')
   if (textIndex >= 0) {
     const rawText = String(e.message[textIndex].text || '')
-    if (isSkipByCustomCommand(rawText)) return
+    if (isSkipByCustomCommand(rawText, prefixItem)) return
     if (skipIfHasPrefix && hasCustomCommandPrefix(rawText)) return
     const trimmedText = rawText.replace(/^\s*\/*\s*/, '')
     e.message[textIndex].text = `${prefix}${trimmedText}`
@@ -182,8 +182,8 @@ function addGSUidBotPrefix (e, rawEvent) {
   }
 }
 
-function isSkipByCustomCommand (text = '') {
-  const list = Config.gsuidNoPrefixCommands
+function isSkipByCustomCommand (text = '', prefixItem = {}) {
+  const list = Array.isArray(prefixItem?.noPrefixCommands) ? prefixItem.noPrefixCommands : []
   if (!Array.isArray(list) || list.length === 0) return false
   const command = String(text).replace(/^\s*\/*\s*/, '')
   return list.some(item => {

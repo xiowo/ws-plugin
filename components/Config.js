@@ -103,11 +103,6 @@ class Config {
     return this.getDefOrConfig('ws-config').gsuidBotPrefix || {}
   }
 
-  /** gsuid_core命中以下命令时不自动加前缀 */
-  get gsuidNoPrefixCommands () {
-    return this.getDefOrConfig('ws-config').gsuidNoPrefixCommands || []
-  }
-
   /** 连接列表 */
   get servers () {
     return this.getDefOrConfig('ws-config').servers

@@ -302,20 +302,20 @@ export function supportGuoba() {
                 componentProps: {
                   defaultValue: true
                 }
+              },
+              {
+                field: 'noPrefixCommands',
+                label: '不加前缀命令',
+                bottomHelpMessage: '仅当前BOT生效；命中这些命令时不自动添加自定义前缀',
+                component: 'Select',
+                componentProps: {
+                  allowClear: true,
+                  mode: 'tags',
+                  options: [
+                    { value: '扫码登陆' }
+                  ]
+                }
               }
-            ]
-          }
-        },
-        {
-          field: 'ws.gsuidNoPrefixCommands',
-          label: '不加前缀命令',
-          bottomHelpMessage: '命中这些命令时不自动添加自定义前缀',
-          component: 'Select',
-          componentProps: {
-            allowClear: true,
-            mode: 'tags',
-            options: [
-              { value: '扫码登陆' }
             ]
           }
         },
@@ -356,7 +356,8 @@ export function supportGuoba() {
           return {
             self_id,
             prefix: String(item?.prefix || ''),
-            skipIfHasPrefix: typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true
+            skipIfHasPrefix: typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true,
+            noPrefixCommands: Array.isArray(item?.noPrefixCommands) ? item.noPrefixCommands : []
           }
         })
         return {
@@ -378,10 +379,14 @@ export function supportGuoba() {
               const self_id = String(item?.self_id || '').trim()
               const prefix = String(item?.prefix || '')
               const skipIfHasPrefix = typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true
+              const noPrefixCommands = Array.isArray(item?.noPrefixCommands)
+                ? item.noPrefixCommands.map(cmd => String(cmd || '').trim()).filter(Boolean)
+                : []
               if (!self_id || !prefix) continue
               map[self_id] = {
                 prefix,
-                skipIfHasPrefix
+                skipIfHasPrefix,
+                noPrefixCommands
               }
             }
             if (!lodash.isEqual(config.gsuidBotPrefix || {}, map)) {
