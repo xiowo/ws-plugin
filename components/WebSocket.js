@@ -87,7 +87,7 @@ async function createWebSocket (data) {
   })
   const isQQBotLikeId = (self_id) => {
     if (!self_id) return false
-    return (/^(2854|3889|40)/.test(self_id) && self_id.length === 10) || (!Version.isTrss && self_id.startsWith('1020') && self_id.length === 9)
+    return (/^(2854|3889|401)/.test(self_id) && self_id.length === 10) || (!Version.isTrss && self_id.startsWith('1020') && self_id.length === 9)
   }
 
   const botAdapterId = Bot?.[client.uin]?.adapter?.id || Bot?.[client.self_id]?.adapter?.id
