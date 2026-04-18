@@ -123,16 +123,25 @@ Bot.on('message', async e => {
           reportMsg = await makeOneBotReportMsg(tmpMsg)
           break
         case 3: {
+          const adapterId = e.bot?.adapter?.id
+          const botIdMap = {
+            QQBot: 'qqgroup',
+            QQGuild: 'qqguild',
+            KOOK: 'kook',
+            Telegram: 'telegram',
+            Discord: 'discord'
+          }
+          const mappedBotId = botIdMap[adapterId]
           let botid = i.adapter?.gsBotId
+
           if (i.uin === 'all') {
-            botid = {
-              QQBot: 'qqgroup',
-              QQGuild: 'qqguild',
-              KOOK: 'kook',
-              Telegram: 'telegram',
-              Discord: 'discord'
-            }[e.bot?.adapter?.id] || 'onebot'
-          } else if (i.uin != e.self_id) continue
+            botid = mappedBotId || 'onebot'
+          } else if (i.uin != e.self_id) {
+            continue
+          } else if (!botid) {
+            botid = mappedBotId || 'onebot'
+          }
+
           addGSUidBotPrefix(tmpMsg, e)
           reportMsg = await makeGSUidReportMsg(tmpMsg, botid)
           break
@@ -152,16 +161,40 @@ function addGSUidBotPrefix (e, rawEvent) {
   const selfId = String(rawEvent?.self_id || e?.self_id || '')
   if (!selfId) return
 
-  const prefix = prefixCfg[selfId]
-  if (typeof prefix !== 'string' || !prefix) return
+  const prefixItem = prefixCfg[selfId]
+  if (!prefixItem || typeof prefixItem !== 'object') return
+
+  const prefix = String(prefixItem.prefix || '')
+  const skipIfHasPrefix = typeof prefixItem.skipIfHasPrefix === 'boolean' ? prefixItem.skipIfHasPrefix : true
+
+  if (!prefix) return
   if (!Array.isArray(e.message)) return
 
   const textIndex = e.message.findIndex(item => item?.type === 'text')
   if (textIndex >= 0) {
-    e.message[textIndex].text = `${prefix}${e.message[textIndex].text || ''}`
+    const rawText = String(e.message[textIndex].text || '')
+    if (isSkipByCustomCommand(rawText, prefixItem)) return
+    if (skipIfHasPrefix && hasCustomCommandPrefix(rawText)) return
+    const trimmedText = rawText.replace(/^\s*\/*\s*/, '')
+    e.message[textIndex].text = `${prefix}${trimmedText}`
   } else {
     e.message.unshift({ type: 'text', text: prefix })
   }
+}
+
+function isSkipByCustomCommand (text = '', prefixItem = {}) {
+  const list = Array.isArray(prefixItem?.noPrefixCommands) ? prefixItem.noPrefixCommands : []
+  if (!Array.isArray(list) || list.length === 0) return false
+  const command = String(text).replace(/^\s*\/*\s*/, '')
+  return list.some(item => {
+    const custom = String(item || '').trim()
+    return custom && command.startsWith(custom)
+  })
+}
+
+function hasCustomCommandPrefix (text = '') {
+  const command = String(text).replace(/^\s*\/*\s*/, '')
+  return /^[A-Za-z0-9]/.test(command)
 }
 
 function reply (e) {

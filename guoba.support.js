@@ -93,29 +93,6 @@ export function supportGuoba() {
           }
         },
         {
-          field: 'ws.gsuidBotPrefixList',
-          label: '早柚前缀',
-          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号设置并在转发时自动添加前缀前缀。',
-          component: 'GSubForm',
-          componentProps: {
-            multiple: true,
-            schemas: [
-              {
-                field: 'self_id',
-                label: 'BOT账号',
-                component: 'Input',
-                required: true
-              },
-              {
-                field: 'prefix',
-                label: '前缀',
-                component: 'Input',
-                required: true
-              }
-            ]
-          }
-        },
-        {
           component: 'Divider',
           label: '通知设置'
         },
@@ -295,6 +272,55 @@ export function supportGuoba() {
         },
         {
           component: 'Divider',
+          label: '早柚转发高级设置'
+        },
+        {
+          field: 'ws.gsuidBotPrefixList',
+          label: '早柚转发前缀',
+          bottomHelpMessage: '仅 gscore(type=3) 生效；按bot账号在转发时自动添加前缀（设置后自动移除/前缀）。',
+          component: 'GSubForm',
+          componentProps: {
+            multiple: true,
+            schemas: [
+              {
+                field: 'self_id',
+                label: 'BOT账号',
+                component: 'Input',
+                required: true
+              },
+              {
+                field: 'prefix',
+                label: '前缀',
+                component: 'Input',
+                required: true
+              },
+              {
+                field: 'skipIfHasPrefix',
+                label: '有前缀不插入',
+                bottomHelpMessage: '开启后，若命令开头是大小写字母或数字，则不再插入自定义前缀',
+                component: 'Switch',
+                componentProps: {
+                  defaultValue: true
+                }
+              },
+              {
+                field: 'noPrefixCommands',
+                label: '不加前缀命令',
+                bottomHelpMessage: '仅当前BOT生效；命中这些命令时不自动添加自定义前缀',
+                component: 'Select',
+                componentProps: {
+                  allowClear: true,
+                  mode: 'tags',
+                  options: [
+                    { value: '扫码登陆' }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          component: 'Divider',
           label: '连接设置'
         },
         {
@@ -325,10 +351,15 @@ export function supportGuoba() {
       getConfigData() {
         const ws = Config.getDefOrConfig('ws-config')
         const prefixMap = ws.gsuidBotPrefix || {}
-        ws.gsuidBotPrefixList = Object.keys(prefixMap).map(self_id => ({
-          self_id,
-          prefix: prefixMap[self_id]
-        }))
+        ws.gsuidBotPrefixList = Object.keys(prefixMap).map(self_id => {
+          const item = prefixMap[self_id]
+          return {
+            self_id,
+            prefix: String(item?.prefix || ''),
+            skipIfHasPrefix: typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true,
+            noPrefixCommands: Array.isArray(item?.noPrefixCommands) ? item.noPrefixCommands : []
+          }
+        })
         return {
           ws,
           msg: Config.getDefOrConfig('msg-config'),
@@ -347,8 +378,16 @@ export function supportGuoba() {
             for (const item of list) {
               const self_id = String(item?.self_id || '').trim()
               const prefix = String(item?.prefix || '')
+              const skipIfHasPrefix = typeof item?.skipIfHasPrefix === 'boolean' ? item.skipIfHasPrefix : true
+              const noPrefixCommands = Array.isArray(item?.noPrefixCommands)
+                ? item.noPrefixCommands.map(cmd => String(cmd || '').trim()).filter(Boolean)
+                : []
               if (!self_id || !prefix) continue
-              map[self_id] = prefix
+              map[self_id] = {
+                prefix,
+                skipIfHasPrefix,
+                noPrefixCommands
+              }
             }
             if (!lodash.isEqual(config.gsuidBotPrefix || {}, map)) {
               Config.modify('ws-config', 'gsuidBotPrefix', map)
